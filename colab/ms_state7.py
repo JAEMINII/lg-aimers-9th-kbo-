@@ -1,0 +1,216 @@
+# -*- coding: utf-8 -*-
+"""라벨 세분화 다음 단계 + 조언의 pretrain 곡선. VS=2024, 대조군 state6(939.9/1군 940.6).
+
+state7  성공을 ball/strike 의도로 분할 (0=succ-ball,1=succ-strike,2=rev,3=mid,4=fail-ball,5=fail-strike)
+ptft    ep1 보조CE만 -> ep2 direct만 -> S2 direct만 (손실 싸움 분리)
+저장: msr7_{arm}_s{seed}.npy
+"""
+import os
+import sys
+import time
+
+import numpy as np
+import pandas as pd
+import torch
+
+os.environ.setdefault("AUDIT_MODE", "all")
+os.environ.setdefault("K", "32")
+os.environ.setdefault("DBLOCK", "512")
+ROOT = "/root/aimers"
+sys.path.insert(0, ROOT)
+sys.path.insert(0, ROOT + "/colab")
+DATA = os.environ.get("AIMERS_DATA", ROOT + "/data")
+DL = ROOT + "/colab/_dl"
+VS = 2024
+import features44 as F                                          # noqa: E402
+import multistate_softmax as M                                  # noqa: E402
+import multistate_auditfeat as A                                # noqa: E402
+import tabm_gate_gpu as G                                       # noqa: E402
+from train_chan_3 import preprocess as PP                       # noqa: E402
+from rtdl_num_embeddings import LinearReLUEmbeddings            # noqa: E402
+from tabm import TabM                                           # noqa: E402
+
+
+def recover_state6(df):
+    """4범주의 other-실패를 ball/strike 로 가른다. 0=성공,1=rev,2=mid,3=other-ball,4=other-strike."""
+    s = M.recover_state(df).copy()
+    pid = df.pitcher_id.to_numpy()
+    n = df.asof_pitcher_n.fillna(0.).to_numpy(float)
+    nxt = (pid[1:] == pid[:-1]) & np.isclose(np.diff(n), 1., atol=1e-8)
+    src = np.flatnonzero(nxt) + 1
+    dst = src - 1
+    cum = df["asof_pitcher_ball_rate"].fillna(0.).to_numpy(float) * n
+    inc = cum[src] - cum[dst]
+    lab = np.rint(inc)
+    good = (np.abs(inc - lab) < .25) & ((lab == 0) | (lab == 1))
+    ball = np.full(len(df), np.nan)
+    ball[dst[good]] = lab[good]
+    out = s.copy()
+    m3 = s == 3
+    out[m3 & (ball == 1)] = 3
+    out[m3 & (ball == 0)] = 4
+    out[m3 & ~np.isfinite(ball)] = -1
+    return out
+
+
+raw = PP.sort_by_row_id(pd.read_csv(DATA + "/train.csv", encoding="utf-8-sig"))
+y = raw.control_success.to_numpy(np.float32)
+season = raw.season.to_numpy(np.int16)
+isf = raw.game_type.astype(str).to_numpy() == "F"
+old = season <= 2022
+aux6 = recover_state6(raw)
+built = F.build(DATA, VS=VS)
+X44 = built["X44"].astype(np.float32)
+names = list(built["F44"])
+xnum, _, xcat, _ = A.audit_features(raw, X44, names)
+c4 = np.where(old & isf, 0., np.where(old & ~isf, 1.,
+              np.where(isf, 2., 3.))).astype(np.float32)[:, None]
+Xin = np.concatenate([X44, xnum, c4, xcat], 1)
+ci = [names.index(c) for c in PP.TABM_CATEGORICAL_FEATURES]
+c4i = X44.shape[1] + xnum.shape[1]
+cat_idx = ci + [c4i] + list(range(c4i + 1, Xin.shape[1]))
+m_tr = season < VS
+Xn, Xc, cards = G.prep(Xin, m_tr, cat_idx)
+G.XN, G.XC, G.cards = torch.from_numpy(Xn), torch.from_numpy(Xc), cards
+tr = np.flatnonzero(m_tr)
+va = np.flatnonzero(season == VS)
+yv = y[va].astype(float)
+isf_va = isf[va]
+w = np.ones(len(y), np.float32)
+w[tr] = np.where(isf[tr] & old[tr], .1, 1.)
+w[tr] = w[tr] * (1.5 ** (season[tr].astype(np.float32) - 2019.0))
+
+
+def sc(p, m=None):
+    q = np.ones(len(yv), bool) if m is None else m
+    return M.best_shift(p[q], yv[q])[0]
+
+
+def make6(n_num, cards, seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    return TabM.make(n_num_features=n_num,
+                     cat_cardinalities=[int(c) for c in cards], d_out=6,
+                     num_embeddings=LinearReLUEmbeddings(n_num, d_embedding=16),
+                     arch_type="tabm", k=32, n_blocks=3, d_block=512,
+                     dropout=0.1).to(M.DEVICE)
+
+
+def recover_ball(df):
+    pid = df.pitcher_id.to_numpy()
+    n = df.asof_pitcher_n.fillna(0.).to_numpy(float)
+    nxt = (pid[1:] == pid[:-1]) & np.isclose(np.diff(n), 1., atol=1e-8)
+    src = np.flatnonzero(nxt) + 1
+    dst = src - 1
+    cum = df["asof_pitcher_ball_rate"].fillna(0.).to_numpy(float) * n
+    inc = cum[src] - cum[dst]
+    lab = np.rint(inc)
+    good = (np.abs(inc - lab) < .25) & ((lab == 0) | (lab == 1))
+    ball = np.full(len(df), np.nan)
+    ball[dst[good]] = lab[good]
+    return ball
+
+
+ball = recover_ball(raw)
+s4 = M.recover_state(raw)
+aux7 = np.full(len(raw), -1, np.int64)
+aux7[(s4 == 0) & (ball == 1)] = 0
+aux7[(s4 == 0) & (ball == 0)] = 1
+aux7[s4 == 1] = 2
+aux7[s4 == 2] = 3
+aux7[(s4 == 3) & (ball == 1)] = 4
+aux7[(s4 == 3) & (ball == 0)] = 5
+print(f"state7 커버 {np.mean(aux7 >= 0):.3f}", flush=True)
+
+
+def make_out(n_num, cards, seed, d_out):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    return TabM.make(n_num_features=n_num,
+                     cat_cardinalities=[int(c) for c in cards], d_out=d_out,
+                     num_embeddings=LinearReLUEmbeddings(n_num, d_embedding=16),
+                     arch_type="tabm", k=32, n_blocks=3, d_block=512,
+                     dropout=0.1).to(M.DEVICE)
+
+
+import torch.nn.functional as Fnn
+
+
+def train_w(model, idx, aux, seed, lr, epochs, dw, bw, sw, tag):
+    """가중 조절판 학습 루프 (dw/bw=direct, sw=보조 CE)."""
+    torch.manual_seed(seed)
+    ii = torch.from_numpy(idx.astype(np.int64))
+    yy = torch.from_numpy(y.astype(np.float32))
+    ss = torch.from_numpy(aux.astype(np.int64))
+    ww = torch.from_numpy(w.astype(np.float32))
+    opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=3e-4)
+    scaler = torch.cuda.amp.GradScaler(enabled=M.AMP)
+    model.train()
+    for ep in range(epochs):
+        perm = torch.randperm(len(idx))
+        for start in range(0, len(idx), M.BS):
+            b = ii[perm[start:start + M.BS]]
+            xn = G.XN[b].to(M.DEVICE, non_blocking=True)
+            xc = G.XC[b].to(M.DEVICE, non_blocking=True)
+            yb = yy[b].to(M.DEVICE, non_blocking=True)
+            sb = ss[b].to(M.DEVICE, non_blocking=True)
+            wb = ww[b].to(M.DEVICE, non_blocking=True)
+            opt.zero_grad(set_to_none=True)
+            with torch.autocast(device_type="cuda", dtype=torch.float16,
+                                enabled=M.AMP):
+                out = model(xn, xc).float()
+                dm = out[..., 0].mean(dim=1)
+                dp = torch.sigmoid(dm)
+                bce = Fnn.binary_cross_entropy_with_logits(dm, yb,
+                                                           reduction="none")
+                brier = (dp - yb).square()
+                st = out[..., 1:]
+                mk = sb >= 0
+                if sw > 0 and bool(mk.any()):
+                    ce_each = Fnn.cross_entropy(
+                        st[mk].reshape(-1, st.shape[-1]),
+                        sb[mk, None].expand(-1, st.shape[1]).reshape(-1),
+                        reduction="none").reshape(-1, st.shape[1]).mean(dim=1)
+                    ce = (ce_each * wb[mk]).sum() / wb[mk].sum()
+                else:
+                    ce = torch.zeros((), device=M.DEVICE)
+                loss = ((dw * bce + bw * brier) * wb).sum() / wb.sum() + sw * ce
+            scaler.scale(loss).backward()
+            scaler.unscale_(opt)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
+            scaler.step(opt)
+            scaler.update()
+        M.log(f"  {tag} ep{ep+1}/{epochs}")
+    return model
+
+
+s2i = tr[season[tr] == VS - 1]
+for nm in ("state7", "ptft"):
+    ps = []
+    for sd in M.SEEDS:
+        t0 = time.time()
+        if nm == "state7":
+            m = make_out(Xn.shape[1], cards, sd, 7)
+            m = M.train_model(m, tr, y, aux7, w, sd, f"s7 s{sd}")
+            lr0, ep0 = M.LR, M.EPOCHS
+            M.LR, M.EPOCHS = 2e-4, 1
+            m = M.train_model(m, s2i, y, aux7, w, sd + 1, f"s7 s{sd} S2")
+            M.LR, M.EPOCHS = lr0, ep0
+        else:
+            m = make_out(Xn.shape[1], cards, sd, 6)
+            m = train_w(m, tr, aux6, sd, M.LR, 1, 0.0, 0.0, M.STATE_W,
+                        f"ptft s{sd} aux")
+            m = train_w(m, tr, aux6, sd + 10, M.LR, 1, M.DIRECT_W, M.Brier_W,
+                        0.0, f"ptft s{sd} direct")
+            m = train_w(m, s2i, aux6, sd + 1, 2e-4, 1, M.DIRECT_W, M.Brier_W,
+                        0.0, f"ptft s{sd} S2")
+        d, _ = M.predict(m, va)
+        ps.append(d)
+        np.save(DL + f"/msr7_{nm}_s{sd}.npy", d)
+        print(f"  {nm} s{sd}  {time.time()-t0:.0f}s  단독 {sc(d):.1f}  "
+              f"1군 {sc(d, ~isf_va):.1f}", flush=True)
+        del m
+        torch.cuda.empty_cache()
+    p = np.mean(ps, 0)
+    print(f"ARM {nm:8s} 시드평균 단독 {sc(p):8.1f}  1군 {sc(p, ~isf_va):8.1f}  "
+          f"퓨처스 {sc(p, isf_va):8.1f}", flush=True)

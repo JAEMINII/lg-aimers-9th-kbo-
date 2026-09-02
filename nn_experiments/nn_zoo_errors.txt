@@ -1,0 +1,34 @@
+
+=== RealTabR
+Traceback (most recent call last):
+  File "C:\Users\jaemin.DESKTOP-2B30D1D\Desktop\재민\재민공부\aimers_재민\nn_experiments\nn_zoo.py", line 101, in <module>
+    m.fit(X[i_fit], y[i_fit].astype(int), cat_col_names=cat_idx)
+  File "C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\pytabkit\models\sklearn\sklearn_base.py", line 434, in fit
+    self.cv_alg_interface_.fit(ds=ds, idxs_list=idxs_list, interface_resources=interface_resources,
+  File "C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\pytabkit\models\alg_interfaces\sub_split_interfaces.py", line 81, in fit
+    hyper_results = self.sub_split_interfaces[i].fit(ds, sub_split_idxs, interface_resources, logger,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\pytabkit\models\alg_interfaces\tabr_interface.py", line 191, in fit
+    X_cat = torch.from_numpy(self.ord_enc.fit_transform(X_cat))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\sklearn\utils\_set_output.py", line 319, in wrapped
+    data_to_wrap = f(self, X, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\sklearn\base.py", line 969, in fit_transform
+    return self.fit(X, **fit_params).transform(X)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\sklearn\base.py", line 1403, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\sklearn\preprocessing\_encoders.py", line 1517, in fit
+    fit_results = self._fit(
+                  ^^^^^^^^^^
+  File "C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\sklearn\preprocessing\_encoders.py", line 87, in _fit
+    X_list, n_samples, n_features = self._check_X(
+                                    ^^^^^^^^^^^^^^
+  File "C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\sklearn\preprocessing\_encoders.py", line 54, in _check_X
+    X_temp = check_array(X, dtype=None, ensure_all_finite=ensure_all_finite)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\sklearn\utils\validation.py", line 1119, in check_array
+    raise ValueError(
+ValueError: Found array with 0 feature(s) (shape=(196420, 0)) while a minimum of 1 is required.

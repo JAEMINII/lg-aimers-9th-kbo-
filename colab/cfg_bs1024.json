@@ -1,0 +1,38 @@
+{
+  "status": "validated",
+  "selected_experiment": "tabm_bce_brier",
+  "selection_seasons": [
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "seeds": [
+    42,
+    1,
+    777,
+    2
+  ],
+  "full_train_epochs": 2,
+  "model": {
+    "kind": "official_tabm",
+    "loss": "bce_brier",
+    "params": {
+      "arch_type": "tabm",
+      "k": 32,
+      "n_blocks": 3,
+      "d_block": 256,
+      "dropout": 0.1,
+      "num_embeddings": "linear_relu",
+      "d_embedding": 16,
+      "learning_rate": 0.00141,
+      "weight_decay": 0.0003,
+      "batch_size": 1024,
+      "eval_batch_size": 8192,
+      "epochs": 2,
+      "patience": 5,
+      "scheduler": "cosine",
+      "device": "auto"
+    }
+  }
+}

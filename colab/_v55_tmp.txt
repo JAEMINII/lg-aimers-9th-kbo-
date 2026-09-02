@@ -1,0 +1,76 @@
+# -*- coding: utf-8 -*-
+"""53 검증: 44앵커 시간환산, 52 대조(퓨처스 동일성), 규칙4, 수준, 상관."""
+import os, shutil, subprocess, sys
+ENV = dict(os.environ, PYTHONIOENCODING="utf-8")
+import numpy as np, pandas as pd
+ROOT = os.getcwd(); DATA = "open (1)/data"
+cols = list(pd.read_csv(f"{DATA}/test.csv", encoding="utf-8-sig", nrows=0).columns)
+tr = pd.read_csv(f"{DATA}/train.csv", encoding="utf-8-sig")
+pool = tr[tr.season == 2024]
+rng = np.random.default_rng(0)
+pick = np.sort(rng.choice(len(pool), 20000, replace=False))
+sub = pool.iloc[pick][cols].copy()
+y24 = pool.iloc[pick]["control_success"].to_numpy(float)
+PKGS = ("submit_54", "submit_55")
+for pkg in PKGS:
+    os.makedirs(f"{pkg}/data", exist_ok=True)
+    sub.to_csv(f"{pkg}/data/test.csv", index=False, encoding="utf-8-sig")
+    pd.DataFrame({"row_id": sub["row_id"], "control_success": 0.5}).to_csv(
+        f"{pkg}/data/sample_submission.csv", index=False, encoding="utf-8-sig")
+code = ("import runpy,io,contextlib,time;t0=time.time()\n"
+        "with contextlib.redirect_stdout(io.StringIO()) as f:\n"
+        "    runpy.run_path('script.py', run_name='__main__')\n"
+        "print(f'{time.time()-t0:.1f}')\n")
+T, P = {}, {}
+for pkg in PKGS:
+    r = subprocess.run([sys.executable, "-c", code], cwd=os.path.join(ROOT, pkg),
+                       capture_output=True, text=True, encoding="utf-8",
+                       errors="replace", env=ENV)
+    if r.returncode:
+        print(f"  {pkg} 실패:\n{r.stderr[-1500:]}"); sys.exit(1)
+    T[pkg] = float(r.stdout.strip().splitlines()[0])
+    g = pd.read_csv(f"{pkg}/output/submission.csv")
+    P[pkg] = dict(zip(g["row_id"], g["control_success"]))
+    print(f"  {pkg}  {T[pkg]:.1f}s")
+rid = sub["row_id"].tolist()
+a54 = np.array([P["submit_54"][r] for r in rid])
+a55 = np.array([P["submit_54"][r] for r in rid])
+est = T["submit_54"] * 396.0 / T["submit_54"]
+print()
+print('  시간  54=%.1fs 53=%.1fs(눈금 396s)  ->  54 서버추정 %.2f분  %s' % (T['submit_54'], T['submit_53'], est/60, '통과' if est <= 480 else '**초과**'))
+isf = sub["game_type"].astype(str).to_numpy() == "F"
+tr2 = pd.read_csv(DATA + "/train.csv", encoding="utf-8-sig", usecols=["pitcher_id"])
+warm_set = set(tr2.pitcher_id.unique().tolist())
+is_cold = ~sub["pitcher_id"].isin(warm_set).to_numpy()
+dfw = np.abs(a54[~is_cold] - a53[~is_cold]).max()
+print('  warm행 53↔54 최대차 %.2e  %s   cold행 비중 %.4f' % (dfw, '통과' if dfw < 1e-9 else '**다름**', is_cold.mean()))
+print('  상관  53↔54 %.5f' % np.corrcoef(a53, a54)[0, 1])
+def zshift(m_from, m_to):
+    l = lambda p: np.log(p/(1-p))
+    return l(m_to) - l(m_from)
+print(f"  수준  실제 {y24.mean():.5f}  53 {a53.mean():.5f}  54 {a54.mean():.5f}"
+      f"  Δz(54-실제) {zshift(y24.mean(), a54.mean()):+.5f}")
+# 규칙4: 순서 섞기 + 부분집합
+full = pd.read_csv("submit_54/data/test.csv", encoding="utf-8-sig")
+per = rng.permutation(len(full))
+full.iloc[per].to_csv("submit_54/data/test.csv", index=False, encoding="utf-8-sig")
+pd.DataFrame({"row_id": full["row_id"].to_numpy()[per], "control_success": 0.5}).to_csv(
+    "submit_54/data/sample_submission.csv", index=False, encoding="utf-8-sig")
+subprocess.run([sys.executable, "-c", code], cwd=os.path.join(ROOT, "submit_54"),
+               capture_output=True, text=True, encoding="utf-8", errors="replace", env=ENV)
+g = pd.read_csv("submit_54/output/submission.csv")
+d1 = float(max(abs(P["submit_54"][r] - v) for r, v in zip(g["row_id"], g["control_success"])))
+half = full.iloc[np.sort(rng.choice(len(full), 7000, replace=False))]
+half.to_csv("submit_54/data/test.csv", index=False, encoding="utf-8-sig")
+pd.DataFrame({"row_id": half["row_id"], "control_success": 0.5}).to_csv(
+    "submit_54/data/sample_submission.csv", index=False, encoding="utf-8-sig")
+subprocess.run([sys.executable, "-c", code], cwd=os.path.join(ROOT, "submit_54"),
+               capture_output=True, text=True, encoding="utf-8", errors="replace", env=ENV)
+g = pd.read_csv("submit_54/output/submission.csv")
+d2 = float(max(abs(P["submit_54"][r] - v) for r, v in zip(g["row_id"], g["control_success"])))
+print(f"  규칙4  순서 {d1:.2e} {'통과' if d1 < 1e-6 else '**위반**'}   "
+      f"부분 {d2:.2e} {'통과' if d2 < 1e-6 else '**위반**'}")
+for p in PKGS:
+    shutil.rmtree(f"{p}/data", ignore_errors=True)
+    shutil.rmtree(f"{p}/output", ignore_errors=True)
+    shutil.rmtree(f"{p}/__pycache__", ignore_errors=True)

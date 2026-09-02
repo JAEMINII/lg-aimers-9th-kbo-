@@ -1,0 +1,23 @@
+cd "c:/Users/jaemin.DESKTOP-2B30D1D/Desktop/재민/재민공부/aimers_재민" && py - <<'PYEOF'
+import json
+path = r"C:/Users/jaemin.DESKTOP-2B30D1D/.claude/projects/c--Users-jaemin-DESKTOP-2B30D1D-Desktop---------aimers---/3b389504-3436-432c-92f4-4204a4082d57.jsonl"
+hits = []
+for ln in open(path, encoding="utf-8", errors="ignore"):
+    if "catkey_a" in ln and "torch.load" in ln:
+        hits.append(ln)
+print("hits:", len(hits))
+if hits:
+    d = json.loads(hits[-1])
+    def walk(o):
+        if isinstance(o, dict):
+            for v in o.values(): yield from walk(v)
+        elif isinstance(o, list):
+            for v in o: yield from walk(v)
+        elif isinstance(o, str) and "catkey_a" in o and "torch.load" in o:
+            yield o
+    for t in walk(d):
+        open("colab/_recovered_converter.txt", "w", encoding="utf-8").write(t)
+        print(t[:500])
+        print("... 전체", len(t), "자 저장됨 -> colab/_recovered_converter.txt")
+        break
+PYEOF

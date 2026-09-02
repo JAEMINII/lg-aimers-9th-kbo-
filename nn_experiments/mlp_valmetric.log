@@ -1,0 +1,129 @@
+학습 2023 245,525행 -> 관문 2024 (1군 223,497)  val_metric_name='cross_entropy'
+RTDL classifier
+Using early stopping on cross-entropy loss
+[('epoch_timer', <skorch.callbacks.logging.EpochTimer object at 0x00000268E29CB6D0>), ('train_loss', <skorch.callbacks.scoring.PassthroughScoring object at 0x00000268E29CBC10>), ('valid_loss', <skorch.callbacks.scoring.PassthroughScoring object at 0x00000268E29DDE10>), ('valid_acc', <skorch.callbacks.scoring.EpochScoring object at 0x00000268E29DE9D0>), ('print_log', <skorch.callbacks.logging.PrintLog object at 0x00000268E9488110>)]
+Initializing UniquePrefixCheckpoint
+fn_prefix is 2649612699984
+A checkpoint was triggered in epoch 2.
+  epoch    train_accuracy    train_loss    valid_acc    valid_loss    cp      dur
+-------  ----------------  ------------  -----------  ------------  ----  -------
+      1            [36m0.5349[0m        [32m0.6896[0m       [35m0.5374[0m        [31m0.6890[0m     +  19.1689
+A checkpoint was triggered in epoch 3.
+      2            0.5397        [32m0.6884[0m       [35m0.5392[0m        [31m0.6885[0m     +  20.9657
+A checkpoint was triggered in epoch 4.
+      3            0.5419        [32m0.6879[0m       [35m0.5414[0m        [31m0.6881[0m     +  20.8065
+      4            0.5435        [32m0.6874[0m       0.5414        0.6882        22.0109
+      5            0.5476        [32m0.6865[0m       0.5403        0.6881        22.0579
+A checkpoint was triggered in epoch 7.
+      6            0.5504        [32m0.6858[0m       0.5408        [31m0.6881[0m     +  20.5014
+      7            0.5534        [32m0.6849[0m       0.5407        0.6882        21.3607
+      8            0.5564        [32m0.6840[0m       0.5397        0.6887        21.5288
+      9            0.5594        [32m0.6827[0m       0.5412        0.6889        20.5710
+     10            0.5638        [32m0.6817[0m       0.5397        0.6889        23.3238
+     11            0.5664        [32m0.6804[0m       0.5404        0.6917        27.6109
+     12            0.5693        [32m0.6791[0m       0.5410        0.6907        34.2958
+     13            0.5722        [32m0.6776[0m       0.5385        0.6917        34.2497
+     14            0.5774        [32m0.6758[0m       0.5393        0.6923        33.9706
+     15            0.5816        [32m0.6739[0m       0.5388        0.6939        33.1121
+     16            0.5833        [32m0.6718[0m       0.5368        0.6934        36.3327
+     17            0.5873        [32m0.6696[0m       0.5394        0.6938        33.9444
+     18            0.5891        [32m0.6682[0m       0.5366        0.6977        33.6592
+     19            0.5927        [32m0.6659[0m       0.5405        0.6977        41.6582
+     20            0.5964        [32m0.6642[0m       0.5366        0.6972        36.6193
+     21            0.5990        [32m0.6616[0m       0.5373        0.6996        36.0098
+     22            0.6021        [32m0.6593[0m       0.5388        0.6986        36.2999
+train end
+Loading best checkpoint after training.
+removing ./rtdl_checkpoints/2649612699984params.pt
+  시드 1  단독    542.8   예측평균 0.5030   (697s)
+RTDL classifier
+Using early stopping on cross-entropy loss
+[('epoch_timer', <skorch.callbacks.logging.EpochTimer object at 0x00000268F4674250>), ('train_loss', <skorch.callbacks.scoring.PassthroughScoring object at 0x00000268F46769D0>), ('valid_loss', <skorch.callbacks.scoring.PassthroughScoring object at 0x00000268F46742D0>), ('valid_acc', <skorch.callbacks.scoring.EpochScoring object at 0x00000268F4917150>), ('print_log', <skorch.callbacks.logging.PrintLog object at 0x00000268F4915A10>)]
+Initializing UniquePrefixCheckpoint
+fn_prefix is 2649802507216
+A checkpoint was triggered in epoch 2.
+  epoch    train_accuracy    train_loss    valid_acc    valid_loss    cp      dur
+-------  ----------------  ------------  -----------  ------------  ----  -------
+      1            [36m0.5307[0m        [32m0.6899[0m       [35m0.5457[0m        [31m0.6876[0m     +  35.2374
+A checkpoint was triggered in epoch 3.
+      2            0.5386        [32m0.6886[0m       0.5456        [31m0.6875[0m     +  41.2135
+A checkpoint was triggered in epoch 4.
+      3            0.5412        [32m0.6882[0m       0.5440        [31m0.6874[0m     +  37.7476
+A checkpoint was triggered in epoch 5.
+      4            0.5432        [32m0.6875[0m       0.5445        [31m0.6873[0m     +  36.1233
+      5            0.5451        [32m0.6868[0m       0.5449        0.6875        35.9892
+      6            0.5488        [32m0.6860[0m       0.5440        0.6874        35.5668
+      7            0.5513        [32m0.6850[0m       0.5444        0.6874        35.0933
+      8            0.5540        [32m0.6842[0m       0.5447        0.6880        37.5193
+      9            0.5576        [32m0.6831[0m       0.5442        0.6877        36.5584
+     10            0.5612        [32m0.6817[0m       0.5417        0.6895        36.8449
+     11            0.5645        [32m0.6807[0m       0.5451        0.6885        37.4791
+     12            0.5666        [32m0.6792[0m       0.5425        0.6897        37.3727
+     13            0.5711        [32m0.6777[0m       0.5418        0.6891        37.0047
+     14            0.5751        [32m0.6761[0m       0.5454        0.6900        37.0572
+     15            0.5775        [32m0.6747[0m       0.5434        0.6898        35.3984
+     16            0.5806        [32m0.6729[0m       0.5420        0.6918        35.7471
+     17            0.5833        [32m0.6711[0m       0.5404        0.6927        35.9661
+     18            0.5861        [32m0.6693[0m       [35m0.5461[0m        0.6949        42.3151
+     19            0.5900        [32m0.6675[0m       0.5428        0.6953        40.9654
+     20            0.5922        [32m0.6658[0m       0.5396        0.6970        35.3935
+     21            0.5969        [32m0.6632[0m       0.5398        0.6989        49.5473
+     22            0.5988        [32m0.6618[0m       0.5427        0.6974        52.0902
+     23            0.6011        [32m0.6599[0m       0.5447        0.7006        47.1680
+train end
+Loading best checkpoint after training.
+removing ./rtdl_checkpoints/2649802507216params.pt
+  시드 2  단독    767.6   예측평균 0.4954   (987s)
+RTDL classifier
+Using early stopping on cross-entropy loss
+[('epoch_timer', <skorch.callbacks.logging.EpochTimer object at 0x00000268F4937FD0>), ('train_loss', <skorch.callbacks.scoring.PassthroughScoring object at 0x00000268F49369D0>), ('valid_loss', <skorch.callbacks.scoring.PassthroughScoring object at 0x00000268F4934E10>), ('valid_acc', <skorch.callbacks.scoring.EpochScoring object at 0x00000268F4935610>), ('print_log', <skorch.callbacks.logging.PrintLog object at 0x00000268F4934290>)]
+Initializing UniquePrefixCheckpoint
+fn_prefix is 2649799824848
+A checkpoint was triggered in epoch 2.
+  epoch    train_accuracy    train_loss    valid_acc    valid_loss    cp      dur
+-------  ----------------  ------------  -----------  ------------  ----  -------
+      1            [36m0.5327[0m        [32m0.6899[0m       [35m0.5387[0m        [31m0.6892[0m     +  40.5130
+A checkpoint was triggered in epoch 3.
+      2            0.5405        [32m0.6884[0m       0.5385        [31m0.6883[0m     +  43.9801
+      3            0.5420        [32m0.6876[0m       [35m0.5402[0m        0.6885        41.3007
+A checkpoint was triggered in epoch 5.
+      4            0.5452        [32m0.6869[0m       [35m0.5406[0m        [31m0.6883[0m     +  40.4406
+      5            0.5482        [32m0.6860[0m       [35m0.5428[0m        0.6883        37.1623
+      6            0.5522        [32m0.6848[0m       0.5412        0.6890        36.2239
+      7            0.5557        [32m0.6839[0m       0.5423        0.6892        37.7246
+      8            0.5597        [32m0.6827[0m       0.5420        0.6891        35.5787
+      9            0.5619        [32m0.6816[0m       0.5399        0.6902        35.9611
+     10            0.5660        [32m0.6800[0m       0.5413        0.6889        35.0175
+     11            0.5702        [32m0.6786[0m       0.5398        0.6918        35.8683
+     12            0.5738        [32m0.6766[0m       0.5383        0.6920        39.4975
+     13            0.5754        [32m0.6752[0m       0.5379        0.6924        35.0567
+     14            0.5794        [32m0.6733[0m       0.5372        0.6922        36.2023
+     15            0.5833        [32m0.6712[0m       0.5385        0.6951        38.1348
+     16            0.5864        [32m0.6693[0m       0.5387        0.6935        31.8226
+     17            0.5892        [32m0.6675[0m       0.5392        0.6985        30.6020
+     18            0.5920        [32m0.6658[0m       0.5383        0.6989        31.8433
+     19            0.5951        [32m0.6637[0m       0.5370        0.7033        30.9366
+     20            0.5991        [32m0.6613[0m       0.5370        0.7032        36.3718
+     21            0.6013        [32m0.6590[0m       0.5369        0.7074        33.5763
+train end
+Loading best checkpoint after training.
+removing ./rtdl_checkpoints/2649799824848params.pt
+  시드 3  단독    650.5   예측평균 0.4989   (833s)
+
+==============================================================================
+정확도 기준(기존) vs 교차엔트로피 기준(새로)
+==============================================================================
+  기존 시드1 (현 제출본)   단독    773.3   CB 상관 0.8891
+  새 기준 시드 1개 평균   단독    542.8   CB 상관 0.7950
+  새 기준 시드 2개 평균   단독    721.9   CB 상관 0.8389
+  새 기준 시드 3개 평균   단독    748.5   CB 상관 0.8487
+
+==============================================================================
+CatBoost 와 앙상블 (shift 0).  기준 = 현 제출본 관문 876.3 = 리더보드 996
+==============================================================================
+                구성    w=0.20    w=0.25    w=0.30    w=0.35    w=0.40    w=0.50   최적 -> 예상
+            기존 시드1     876.3     879.5     881.4     882.0     881.4     876.2   0.35 ->  998.1
+           새 1시드평균     855.3     851.3     845.3     837.1     826.9     800.3   0.20 ->  988.5
+           새 2시드평균     867.3     868.1     867.6     865.8     862.7     852.5   0.25 ->  993.1
+           새 3시드평균     872.3     874.5     875.3     874.8     873.0     865.4   0.30 ->  995.6
+           새3시드+기존     874.5     877.5     879.4     880.1     879.7     875.3   0.35 ->  997.4

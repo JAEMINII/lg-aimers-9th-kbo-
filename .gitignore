@@ -1,0 +1,21 @@
+# 대회 제공 데이터 — 재배포 금지, 대회 사이트에서 받을 것
+open (1)/
+*.csv
+*.csv.gz
+
+# 마일스톤 제출본 zip (로컬 보관) — 내용은 submit_89/ 로 재현 가능
+submit_jaemin_*.zip
+submit_*.zip
+handoff_1083/*.zip
+
+# 실행 산출물
+__pycache__/
+*.pyc
+output/
+**/data/
+**/output/
+.ipynb_checkpoints/
+
+# 작업 캐시
+.tmp_inspect/
+.claude/

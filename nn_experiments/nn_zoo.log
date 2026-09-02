@@ -1,0 +1,57 @@
+학습 2023 245,525행 -> 관문 2024 1군 223,497
+기준: 현 제출본 912.6   (CatBoost 단독 906.7 / MLP 단독 776.4)
+참고: CatBoost~MLP 상관 0.9072
+
+  모델                     단독     CB상관    MLP상관     최적비중      얹은결과      대비      시간
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\pytorch_lightning\utilities\_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+`Trainer.fit` stopped: `max_epochs=256` reached.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\pytorch_lightning\utilities\_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+  RealMLP_TD          514.7   0.7807   0.7837     0.05     913.6    +1.0   8776s
+RTDL classifier
+Using early stopping on cross-entropy loss
+[('epoch_timer', <skorch.callbacks.logging.EpochTimer object at 0x000001C4A8603290>), ('train_loss', <skorch.callbacks.scoring.PassthroughScoring object at 0x000001C4A8004D50>), ('valid_loss', <skorch.callbacks.scoring.PassthroughScoring object at 0x000001C4A85E2050>), ('valid_acc', <skorch.callbacks.scoring.EpochScoring object at 0x000001C4A85E2010>), ('print_log', <skorch.callbacks.logging.PrintLog object at 0x000001C4A859F1D0>)]
+Initializing UniquePrefixCheckpoint
+fn_prefix is 1944150259344
+A checkpoint was triggered in epoch 2.
+  epoch    train_accuracy    train_loss    valid_acc    valid_loss    cp      dur
+-------  ----------------  ------------  -----------  ------------  ----  -------
+      1            [36m0.5291[0m        [32m0.6930[0m       [35m0.5390[0m        [31m0.6884[0m     +  60.6446
+A checkpoint was triggered in epoch 3.
+      2            0.5392        [32m0.6887[0m       [35m0.5404[0m        [31m0.6880[0m     +  50.8341
+      3            0.5425        [32m0.6880[0m       [35m0.5409[0m        0.6884        51.8407
+      4            0.5443        [32m0.6874[0m       0.5405        0.6886        52.0507
+      5            0.5461        [32m0.6867[0m       0.5403        0.6882        48.1818
+      6            0.5497        [32m0.6857[0m       0.5403        0.6896        48.1323
+      7            0.5521        [32m0.6849[0m       0.5388        0.6890        54.8853
+      8            0.5558        [32m0.6842[0m       0.5350        0.6893        48.8141
+      9            0.5589        [32m0.6828[0m       0.5380        0.6892        49.4901
+     10            0.5619        [32m0.6821[0m       0.5393        0.6906        52.8367
+     11            0.5648        [32m0.6807[0m       0.5360        0.6904        52.1250
+     12            0.5661        [32m0.6799[0m       0.5396        0.6908        55.6383
+     13            0.5704        [32m0.6785[0m       0.5393        0.6901        50.5154
+     14            0.5709        [32m0.6777[0m       0.5401        0.6903        52.4265
+     15            0.5738        [32m0.6768[0m       0.5359        0.6919        43.0311
+     16            0.5766        [32m0.6755[0m       0.5387        0.6937        38.6438
+     17            0.5783        [32m0.6746[0m       0.5382        0.6927        38.6301
+     18            0.5807        [32m0.6734[0m       0.5355        0.6932        36.8126
+     19            0.5832        [32m0.6721[0m       0.5356        0.6945        37.8504
+     20            0.5846        [32m0.6712[0m       0.5369        0.6950        36.4060
+     21            0.5868        [32m0.6701[0m       0.5390        0.6944        37.9784
+train end
+Loading best checkpoint after training.
+removing ./rtdl_checkpoints/1944150259344params.pt
+  Resnet_RTDL         748.4   0.8869   0.8886     0.05     912.8    +0.2   1076s
+  TabM_k8           -1468.6   0.3926   0.4767     0.00     912.6    +0.0   4048s
+Seed set to 1791095845
+C:\Users\jaemin.DESKTOP-2B30D1D\aimers_venv\Lib\site-packages\sklearn\impute\_base.py:647: UserWarning: Skipping features without any observed values: [ 0  1  2  3  4  5  6  7  8  9 10]. At least one non-missing value is needed for imputation with strategy='constant'.
+  warnings.warn(
+  RealTabR         실패: ValueError Found array with 0 feature(s) (shape=(196420, 0)) while a minimum of 1 is required.
+
+판독: CB상관 0.93 아래면 MLP 급 재료다. '대비' +8 이상이면 넣을 값어치가 있다.
+      MLP 상관도 같이 본다 — 기존 MLP 와 겹치면 둘을 같이 넣어도 소용없다.
